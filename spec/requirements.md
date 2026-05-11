@@ -9,16 +9,16 @@
 ## 1. Overview
 
 ### 1.1 Purpose
-A web and mobile-friendly platform that allows registered users to place and modify predictions/bets on FIFA World Cup matches throughout the entire competition — from group stages through to the final. The platform differentiates itself by permitting bet modifications within defined time windows, giving players a more dynamic and engaging experience than traditional fixed-bet systems.
+A platform with a web (& possibly mobile) front-end that allows registered users to place and modify predictions/bets on FIFA World Cup matches throughout the entire competition — from group stages through to the final. The platform differentiates itself by permitting bet modifications within defined time windows, giving players a more dynamic and engaging experience than traditional fixed-bet systems.
 
 ### 1.2 Goals
-- Allow users to place bets on any World Cup match before and during defined windows
+- Allow users to place bets on any World Cup match up until just before the match
 - Allow users to **change their bets** within allowed time windows as the tournament unfolds
 - Provide a real-time leaderboard to drive engagement
 - Award **fixed points per bet type** on correct predictions; no variable stakes or currency involved
-- Give administrators full control over matches, point values, and settlement
+- Give administrators full control over matches, point values, and bet settlement
 
-### 1.3 Out of Scope (v1.0)
+### 1.3 Out of Scope
 - Real-money payments and withdrawal flows
 - Native iOS / Android apps (responsive web only)
 - Third-party sportsbook integrations

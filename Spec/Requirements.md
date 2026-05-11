@@ -245,13 +245,12 @@ After that the prediction are locked.
 |---|---|---|---|
 | US-01 | Guest | Register with my Google account | I can start predicting quickly |
 | US-02 | Player | Place a prediction on a match result | I can participate in the tournament |
-| US-03 | Player | Change my prediction before kickoff | I can react to team news |
-| US-04 | Player | Change my prediction during the first 15 minutes | I can react to early match events |
-| US-05 | Player | See how many points each market is worth | I know what I'm playing for |
+| US-03 | Player | Change my prediction up to 1h before kickoff | I can react to team news |
+| US-05 | Player | See how many points each betting category is worth | I know what I'm playing for |
 | US-06 | Player | Get notified when my prediction locks | I'm not caught off guard |
 | US-07 | Player | See my total points score at all times | I can track my progress |
 | US-08 | Player | View the global leaderboard | I can compare with other players |
 | US-09 | Player | View my prediction history and points breakdown | I can review my accuracy |
-| US-10 | Admin | Set points values per market | I can adjust difficulty and reward balance |
+| US-10 | Admin | Set points values per betting category | I can adjust difficulty and reward balance |
 | US-11 | Admin | Settle all predictions for a finished match | Points are awarded automatically |
 | US-12 | Admin | Suspend a user | I can enforce fair play |

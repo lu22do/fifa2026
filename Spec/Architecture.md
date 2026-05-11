@@ -25,6 +25,7 @@
 │   ┌─────────────────────────────────────────────────────────┐     │
 │   │           Node.js API Server (Express + TypeScript)     │     │
 │   │   REST endpoints · Supabase Realtime relay · Cron jobs  │     │
+│   │   API-Football.com polling for live score updates       │     │
 │   └────────────────────────┬────────────────────────────────┘     │
 └────────────────────────────┼──────────────────────────────────────┘
                              │  Supabase JS Client
@@ -78,6 +79,7 @@
 | **PostgreSQL** | Primary database — all app data |
 | **Auth** | Google OAuth + email/password; issues JWTs |
 | **Realtime** | Push match status changes and point value updates to clients |
+| **External API** | API-Football | Source of truth for live scores via Node.js polling during match hours |
 | **Edge Functions** | Bet settlement logic; email notification dispatch |
 | **Row Level Security (RLS)** | Players can only read/write their own bets |
 
@@ -142,7 +144,7 @@ CREATE TABLE matches (
   score_home      SMALLINT,
   score_away      SMALLINT,
   minute          SMALLINT,                    -- current match minute (live)
-  bet_lock_at     TIMESTAMPTZ,                 -- computed: kickoff_at + 15 min
+  bet_lock_at     TIMESTAMPTZ,                 -- computed: kickoff_at - 60 min
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -381,6 +383,8 @@ Channel: matches
   → Payload: { match_id, status, score_home, score_away, minute }
   → Consumers: all clients
 
+Live score updates are sourced from API-Football. During match hours the Node.js backend polls `GET /fixtures?live=all` every 60 seconds, updates the `matches` table, and relies on Supabase Realtime to push changes to connected clients. Manual admin override is retained as a fallback for corrections or coverage gaps.
+
 Channel: bets:{user_id}
   → Listens on: bets table (UPDATE) for that user_id
   → Payload: { bet_id, status, locked_at, points_awarded }
@@ -433,29 +437,13 @@ Bet window rules (FR-012) are enforced exclusively on the Node.js API — never 
 export function getBetWindowStatus(match: Match): BetWindowStatus {
   const now = new Date()
   const kickoff = new Date(match.kickoff_at)
-  const minutesElapsed = (now.getTime() - kickoff.getTime()) / 60000
+  const minutesUntilKickoff = (kickoff.getTime() - now.getTime()) / 60000
 
-  if (match.status === 'scheduled') {
+  if (minutesUntilKickoff > 60 && match.status === 'scheduled') {
     return { canChange: true, reason: null }
   }
 
-  if (match.status === 'half_time') {
-    const halfTimeStarted = new Date(match.half_time_at!)
-    const halfTimeElapsed = (now.getTime() - halfTimeStarted.getTime()) / 60000
-    if (halfTimeElapsed <= 10) {
-      return { canChange: true, reason: null }
-    }
-    return { canChange: false, reason: 'HALF_TIME_WINDOW_CLOSED' }
-  }
-
-  if (match.status === 'live') {
-    if (minutesElapsed <= 15) {
-      return { canChange: true, reason: 'LIVE_WINDOW' }
-    }
-    return { canChange: false, reason: 'MATCH_LOCKED' }
-  }
-
-  return { canChange: false, reason: 'MATCH_ENDED' }
+  return { canChange: false, reason: 'BET_WINDOW_CLOSED' }
 }
 ```
 
@@ -474,7 +462,7 @@ Admin UI
   ▼
 Node API
   │── Validate admin role
-  │── Validate match is 'live' or 'half_time' (not already finished)
+  │── Validate match is not already finished or abandoned
   │── UPDATE matches SET status = 'finished', score_home, score_away
   │── Invoke Supabase Edge Function: settle_match({ match_id })
   │

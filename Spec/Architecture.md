@@ -80,7 +80,8 @@
 | **Auth** | Google OAuth + email/password; issues JWTs |
 | **Realtime** | Push match status changes and point value updates to clients |
 | **External API** | API-Football | Source of truth for live scores via Node.js polling during match hours |
-| **Edge Functions** | Bet settlement logic; email notification dispatch |
+| **Email Delivery** | Resend | Auth emails via Supabase SMTP swap; transactional notifications via Resend API |
+| **Edge Functions** | Bet settlement logic; in-app + email notification dispatch via Resend |
 | **Row Level Security (RLS)** | Players can only read/write their own bets |
 
 ---
@@ -475,8 +476,11 @@ Edge Function: settle_match
   │     INSERT bet_history (event_type = 'settled')
   │     If correct: UPDATE users SET total_points = total_points + points_awarded
   │                 INSERT notifications (points earned)
+  │                 SEND transactional email notification
   │     If incorrect: INSERT notifications (0 points)
+  │                 SEND transactional email notification
   │     If void:   INSERT notifications (prediction voided)
+  │                 SEND transactional email notification
   │── Refresh leaderboard materialized view
 ```
 
@@ -562,6 +566,9 @@ const { mutate: modifyBet } = useMutation({
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=     # Server-side only; never exposed to client
 SUPABASE_JWT_SECRET=
+EMAIL_PROVIDER=resend
+EMAIL_PROVIDER_API_KEY=
+EMAIL_FROM=
 NODE_ENV=production
 PORT=3000
 ```

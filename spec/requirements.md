@@ -243,7 +243,7 @@ After that the prediction are locked.
 
 | ID | As a… | I want to… | So that… |
 |---|---|---|---|
-| US-01 | Guest | Register with my Google account | I can start predicting quickly |
+| US-01 | Player | Register with my Google account or email/pwd | I can start predicting quickly |
 | US-02 | Player | Place a prediction on a match result | I can participate in the tournament |
 | US-03 | Player | Change my prediction up to 1h before kickoff | I can react to team news |
 | US-05 | Player | See how many points each betting category is worth | I know what I'm playing for |

@@ -98,7 +98,6 @@ users ──< bets >── matches
   |              betting_category_points
   |
   └──< bet_history (audit log)
-  └──< follows (friends leaderboard)
 ```
 
 ### 3.2 Table Definitions
@@ -156,7 +155,7 @@ CREATE TABLE betting_category_points (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   betting_category        TEXT NOT NULL CHECK (betting_category IN (
                   'match_result','btts','total_goals',
-                  'correct_score','first_goalscorer','tournament_winner')),
+                  'correct_score','first_goalscorer')),
   stage         TEXT,                           -- null = applies to all stages; or a specific stage override
   points        SMALLINT NOT NULL CHECK (points > 0),
   is_active     BOOLEAN NOT NULL DEFAULT TRUE,
@@ -194,17 +193,6 @@ CREATE TABLE bet_history (
   old_selection   TEXT,
   new_selection   TEXT,
   changed_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- ─────────────────────────────────────────────
--- FOLLOWS  (friends leaderboard)
--- ─────────────────────────────────────────────
-CREATE TABLE follows (
-  follower_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  following_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  PRIMARY KEY (follower_id, following_id),
-  CHECK (follower_id <> following_id)
 );
 
 -- ─────────────────────────────────────────────
